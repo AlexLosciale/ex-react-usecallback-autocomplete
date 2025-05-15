@@ -1,0 +1,29 @@
+.app-container {
+    padding: 1rem;
+    max-width: 400px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.5rem;
+  }
+  
+  .suggestions-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: #fff;
+  }
+  
+  .suggestion-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .error-message {
+    color: red;
+  }
+  

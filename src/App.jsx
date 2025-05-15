@@ -1,58 +1,62 @@
 import { useState, useEffect } from 'react';
+import './index.css';
 
 function App() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`);
-        const data = await res.json();
-        setSuggestions(data);
-      } catch (error) {
-        console.error('Errore nel recupero dati:', error);
+    const delayDebounce = setTimeout(() => {
+      if (!query.trim()) {
+        setSuggestions([]);
+        setError(null);
+        return;
       }
-    };
 
-    fetchData();
+      const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch(
+            `https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${query}`
+          );
+          if (!res.ok) {
+            throw new Error(`Errore del server: ${res.status}`);
+          }
+          const data = await res.json();
+          setSuggestions(data);
+        } catch (err) {
+          setSuggestions([]);
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
   }, [query]);
 
   return (
-    <div className="App" style={{ padding: '1rem', maxWidth: '400px' }}>
-      <h1>Cerca</h1>
+    <div className="app-container">
+      <h1>Search</h1>
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="cerca nei prodotti"
-        style={{ width: '100%', padding: '0.5rem' }}
+        placeholder="Search for products"
+        className="search-input"
       />
+      {loading && <p>Caricamento...</p>}
+      {error && <p className="error-message">Errore: {error}</p>}
       {suggestions.length > 0 && (
-        <ul
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            marginTop: '0.5rem',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-            background: '#fff',
-          }}
-        >
+        <ul className="suggestions-list">
           {suggestions.map((item) => (
-            <li
-              key={item.id}
-              style={{
-                padding: '0.5rem',
-                borderBottom: '1px solid #eee',
-              }}
-            >
+            <li key={item.id} className="suggestion-item">
               {item.name}
             </li>
           ))}
